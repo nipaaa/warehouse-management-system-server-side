@@ -36,6 +36,7 @@ async function run(){
     try{
         await client.connect();
         const itemsCollection = client.db('warehouse-dress').collection('items');
+        const orderCollection = client.db('warehouse-dress').collection('order');
 
         //AUTH
         app.post('/login' , async(req, res) => {
@@ -90,13 +91,13 @@ async function run(){
             res.send(result);
         })
 
-        //myitems
-        app.get('/myItems' , verifyJWT , async(req, res) =>{
+        //addItem
+        app.get('/addItem' , verifyJWT , async(req, res) =>{
             const decodedEmail = req.decoded.email;
             const email = req.query.email;
             if (email === decodedEmail) {
                 const query = {email: email};
-            const cursor = itemsCollection.find(query);
+            const cursor = orderCollection.find(query);
             const item = await cursor.toArray();
             res.send(item); 
             } else {
@@ -105,10 +106,25 @@ async function run(){
            
 
         })
-        app.post('/myItems', async(req, res) => {
+        app.post('/addItem', async(req, res) => {
             const newItem = req.body;
-            const result = await itemsCollection.insertOne(newItem);
+            const result = await orderCollection.insertOne(newItem);
             res.send(result)
+        });
+
+        //myitem
+        app.get('/myitems', async(req, res) => {
+            const email = req.query.email;
+            const query = {email: email};
+            const cursor = itemsCollection.find(query);
+            const myItems = await cursor.toArray() ;
+            res.send(myItems);
+        });
+        app.delete('/myitems/:id', async(req, res) =>{
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const result = await itemsCollection.deleteOne(query);
+            res.send(result);
         });
 
     }
