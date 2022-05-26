@@ -23,8 +23,10 @@ function verifyJWT(req, res, next){
         }
         console.log('decoded', decoded);
         req.decoded = decoded;
+        next();
+
     })
-    next();
+   
 }
 
 
@@ -113,12 +115,16 @@ async function run(){
         });
 
         //myitem
-        app.get('/myitems', async(req, res) => {
+        app.get('/myitems', verifyJWT, async(req, res) => {
+            const decodedEmail = req.decoded.email;
             const email = req.query.email;
+            console.log(decodedEmail);
+            if (email === decodedEmail) {
             const query = {email: email};
             const cursor = itemsCollection.find(query);
             const myItems = await cursor.toArray() ;
             res.send(myItems);
+            } 
         });
         app.delete('/myitems/:id', async(req, res) =>{
             const id = req.params.id;
