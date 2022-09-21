@@ -54,6 +54,7 @@ async function run(){
             const cursor = itemsCollection.find(query);
             const item = await cursor.toArray();
             res.send(item);
+            
         });
 
         app.get('/inventory/:id' , async(req, res) => {
